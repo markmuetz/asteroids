@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Example file showing a circle moving on screen
 import pygame
 import numpy as np
@@ -65,7 +66,14 @@ while super_running:
         if dist(asteroid[0], player_pos) > 100:
             asteroids.append(asteroid)
 
+    powerups = []
     while running and asteroids:
+        if np.random.random() > 0.995:
+            powerups.append({
+                'pos': pygame.Vector2(np.random.random() * screen.get_width(), np.random.random() * screen.get_height()),
+                'age': 0,
+                })
+
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
@@ -173,7 +181,7 @@ while super_running:
                 ]
             bullets.append(bullet)
             shoot = False
-            shoot_timer = 10
+            shoot_timer = 1
         shoot_timer -= 1
         for bullet in bullets:
             bullet[0].x += 525 * dt * np.cos(bullet[2] * np.pi / 180) + bullet[1].x
@@ -215,6 +223,20 @@ while super_running:
                 asteroid[0].x += screen.get_width()
             if asteroid[0].y < 0:
                 asteroid[0].y += screen.get_height()
+
+        powerups_to_remove = []
+        for powerup in powerups:
+            if dist(powerup['pos'], player_pos) < max(20, 20):
+                powerups_to_remove.append(powerup)
+            if powerup['age'] > 500:
+                powerups_to_remove.append(powerup)
+            else:
+                pygame.draw.circle(screen, 'blue', powerup['pos'], 20, width=2)
+                powerup['age'] += 1
+
+        for powerup in powerups_to_remove:
+            powerups.remove(powerup)
+
 
         bullets = [b for b in bullets if b[3] < 10000 * dt]
 
